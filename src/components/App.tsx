@@ -6,7 +6,7 @@ import DataGrid, { Column } from 'devextreme-react/data-grid'
 import 'devextreme/dist/css/dx.common.css'
 import 'devextreme/dist/css/dx.light.css'
 import ResultsDisplay from './ResultsDisplay'
-import {getOrderById} from '../services/APIServices'
+import {getOrderById, getOrderByName, getRecentOrders} from '../services/APIServices'
 import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -16,13 +16,32 @@ function App() {
     const [orderId, setOrderId] = useState<string>('')
     const [orderName, setOrderName] = useState<string>('')
     const [resultJson, setResultJson] = useState<any[]>([])
-
+    const [recentOrders, setRecentOrders] = useState<any[]>([])
+  useEffect(() => {
+    getRecentOrders().then(data => setRecentOrders(data))
+  }, [])
 
 
     function handleSubmit(){
-        getOrderById(orderId).then(data => setResultJson(data))
-
+        if(orderId!==''){
+            getOrderById(orderId).then(data => setResultJson(data))
+        }
+        else if(orderName!==''){
+            getOrderByName(orderName).then(data => setResultJson(data))
+        }
     }
+    function handleSelect(value){
+      if(value!==''){
+        let orderInfo = value.split(':');
+        if(orderInfo[0]!=='null'){
+            getOrderById(orderInfo[0]).then(data => setResultJson(data))
+        }else{
+            getOrderByName(orderInfo[1]).then(data => setResultJson(data))
+        }
+      }
+    }
+
+
   return (
       <>
            <div className='container-fluid' id='content'>
@@ -43,6 +62,20 @@ function App() {
                             onChange={e => setOrderName(e.target.value)}
                         />
                      </div>
+
+                   <>
+                     <h4>Recent Orders</h4>
+                     <input
+                       list='orders'
+                       className='collections'
+                       onChange={e => handleSelect(e.target.value)}
+                     />
+                     <datalist id='orders'>
+                       {recentOrders.map((order) => (
+                         <option key={order.order_id}>{order.order_id +':'+ order.order_name  }</option>
+                       ))}
+                     </datalist>
+                   </>
 
                      <div className='col-md-4'>
                        <label>Data Range</label>
@@ -77,7 +110,6 @@ function App() {
                      </div>
                    </div>
                  </div>
-                 {console.log(resultJson.length)}
                  {resultJson.length===0 ? (
                    <div className='alert alert-info'>
                      <div>No results found.</div>
@@ -88,6 +120,7 @@ function App() {
                          showBorders={true}
                          dataSource={resultJson}
                          allowColumnResizing={true}
+                         rowAlternationEnabled={true}
                          columnAutoWidth={true}
                        >
                          <Column dataField='buyer_id' width={100} caption='Customer Model' />
