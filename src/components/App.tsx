@@ -15,6 +15,7 @@ function App() {
 
     const [orderId, setOrderId] = useState<string>('')
     const [orderName, setOrderName] = useState<string>('')
+    const [totalOrderCount, setTotalOrderCount] = useState<number>(0)
     const [proposedOrderName, setProposedOrderName] = useState<string>('')
     const [modelList, setModelList] = useState<string>('')
     const [selectedOrder, setSelectedOrder] = useState<string>('')
@@ -23,7 +24,9 @@ function App() {
   useEffect(() => {
     getRecentOrders().then(data => setRecentOrders(data))
     getOrderTotal().then(data => {
-    setProposedOrderName('O'+(data['COUNT(*)']+1))})
+        setTotalOrderCount(data['COUNT(*)']+1)
+        setProposedOrderName('O'+(data['COUNT(*)']+1))
+    })
   }, [])
 
 
@@ -45,6 +48,8 @@ function App() {
                 if(r){
                     generateOrderWithNameAndModels({list:list, name:proposedOrderName}).then(data => {
                         getOrderItemByName(proposedOrderName).then(data => setResultJson(data))
+                        setTotalOrderCount(totalOrderCount+1)
+                        setProposedOrderName('O'+(totalOrderCount+1))
                     })
                 }
             }
