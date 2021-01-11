@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+.model-input{
+    width: 701px;
+    height: 100px;
+}
+.column {
+    width: 10%;
+}
+.btn-success {
+    margin-right: 20px;
+}
+.col-md-3 {
+    width: 23%;
+}
+
