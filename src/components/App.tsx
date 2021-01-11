@@ -6,7 +6,10 @@ import DataGrid, { Column, Editing } from 'devextreme-react/data-grid'
 import 'devextreme/dist/css/dx.common.css'
 import 'devextreme/dist/css/dx.light.css'
 import ResultsDisplay from './ResultsDisplay'
-import {getOrderById, getOrderByName, getRecentOrders, getOrderTotal,getOrderItemByName, generateOrderWithNameAndModels} from '../services/APIServices'
+import {getOrderById, getOrderByName, getRecentOrders,
+ getOrderTotal,getOrderItemByName,
+ updateData,
+ generateOrderWithNameAndModels} from '../services/APIServices'
 import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -68,21 +71,14 @@ function App() {
         }
       }
     }
-    function getPriceC(rowData){
-        if(rowData.priceC){
-            return rowData.priceC
-        }if(rowData.priceCI){
-            return rowData.priceCI
-        }
-        return ''
+    function handleUpdate(data){
+            console.log(data)
+        updateData(data).then(e=>{
+        })
     }
-    function getPriceU(rowData){
-        if(rowData.priceU){
-            return rowData.priceU
-        }if(rowData.priceUI){
-            return rowData.priceUI
-        }
-        return ''
+
+    function updateDataEntry(rowData){
+        return <button onClick={e=>handleUpdate(rowData.data)}>save</button>;
     }
 
   return (
@@ -195,18 +191,25 @@ function App() {
                          rowAlternationEnabled={true}
                          columnAutoWidth={true}
                        >
-                       <Editing mode="row" allowUpdating={true} />
-                         <Column allowSorting={true} dataField='buyer_id' width={100} caption='Customer Model' />
+                       <Editing mode="cell" allowUpdating={true} />
+                         <Column allowSorting={true} dataField='order_id' caption='Order Id' />
+                         <Column allowSorting={true} dataField='buyer_id' caption='Buyer Model' />
                          <Column allowSorting={true} dataField='oem_id' caption='OEM Model' />
-                         <Column allowSorting={true} dataField='factory_id' caption='Factory Model' />
+                         <Column allowSorting={true} dataField='factory_id' caption='F Model' />
                          <Column allowSorting={true} dataField='x' caption='Length' />
                          <Column allowSorting={true} dataField='y' caption='Width' />
                          <Column allowSorting={true} dataField='z' caption='Height' />
                          <Column allowSorting={true} dataField='description' caption='Description' />
                          <Column allowSorting={true} dataField='quantity' caption='Quantity' />
-                         <Column allowSorting={true} calculateCellValue={getPriceC} caption='Unit Price CNY' />
-                         <Column allowSorting={true} calculateCellValue={getPriceU} caption='unit Price USD' />
+                         <Column allowSorting={true} dataField='priceC'  caption='O Price CNY' />
+                         <Column allowSorting={true} dataField='priceU'  caption='O Price USD' />
+                         <Column allowSorting={true} dataField='priceCI'  caption='Price CNY' />
+                         <Column allowSorting={true} dataField='priceUI'  caption='Price USD' />
                          <Column allowSorting={true} dataField='quantity' caption='Quantity' />
+                         <Column allowSorting={true} dataField='hs' caption='HS code' />
+                         <Column allowSorting={true} dataField='comment' caption='Comment for Order' />
+                         <Column allowSorting={true} dataField='comment1' caption='Comment for item' />
+                         <Column allowSorting={true} cellRender={updateDataEntry} caption='Save' />
 
                        </DataGrid>
                  )}

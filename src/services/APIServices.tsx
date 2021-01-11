@@ -34,3 +34,14 @@ export function generateOrderWithNameAndModels(queryJsonString) {
     body: JSON.stringify(queryJsonString),
   }).then(res => res.json())
 }
+
+export function updateData(data) {
+  return fetch('http://localhost:3000/orderItem/update', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
+  }).then(res => res.json())
+}
