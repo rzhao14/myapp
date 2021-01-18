@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react'
 import DateTimePicker from 'react-time-picker';
 import DateBox from 'devextreme-react/date-box'
 import DropDownButton from 'devextreme-react/drop-down-button'
-import DataGrid, { Column, Editing } from 'devextreme-react/data-grid'
+import DataGrid, { Column,Export, Editing } from 'devextreme-react/data-grid'
 import 'devextreme/dist/css/dx.common.css'
 import 'devextreme/dist/css/dx.light.css'
+import ExcelJS from 'exceljs';
+import { exportDataGrid } from 'devextreme/excel_exporter';
+import FileSaver from 'file-saver';
+
 import ResultsDisplay from './ResultsDisplay'
 import {getOrderById, getOrderByName, getRecentOrders,
  getOrderTotal,getOrderItemByName,
@@ -72,10 +76,29 @@ function App() {
       }
     }
     function handleUpdate(data){
-            console.log(data)
+
+             console.log(data)
         updateData(data).then(e=>{
+             console.log(e)
         })
     }
+
+    function onExporting(e) {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Main sheet');
+
+        exportDataGrid({
+          component: e.component,
+          worksheet: worksheet,
+          autoFilterEnabled: true
+        }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer) => {
+            FileSaver.saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'DataGrid.xlsx');
+          });
+        });
+        e.cancel = true;
+      }
+
 
     function updateDataEntry(rowData){
         return <button onClick={e=>handleUpdate(rowData.data)}>save</button>;
@@ -190,26 +213,29 @@ function App() {
                          allowColumnResizing={true}
                          rowAlternationEnabled={true}
                          columnAutoWidth={true}
+                         onExporting={onExporting}
                        >
                        <Editing mode="cell" allowUpdating={true} />
                          <Column allowSorting={true} dataField='order_id' caption='Order Id' />
-                         <Column allowSorting={true} dataField='buyer_id' caption='Buyer Model' />
-                         <Column allowSorting={true} dataField='oem_id' caption='OEM Model' />
+                         <Column allowSorting={true} dataField='buyer_id'  width={80} caption='Buyer Model' />
+                         <Column allowSorting={true} dataField='oem_id' width={150} caption='OEM Model' />
                          <Column allowSorting={true} dataField='factory_id' caption='F Model' />
-                         <Column allowSorting={true} dataField='x' caption='Length' />
-                         <Column allowSorting={true} dataField='y' caption='Width' />
-                         <Column allowSorting={true} dataField='z' caption='Height' />
-                         <Column allowSorting={true} dataField='description' caption='Description' />
+                         <Column allowSorting={true} dataField='x' width={50} caption='Length' />
+                         <Column allowSorting={true} dataField='y' width={50} caption='Width' />
+                         <Column allowSorting={true} dataField='z' width={50} caption='Height' />
+                         <Column allowSorting={true} dataField='unit' width={50} caption='Unit' />
+                         <Column allowSorting={true} dataField='description' width={300} caption='Description' />
+                         <Column allowSorting={true} dataField='price'  width={80} caption='O Price USD' />
                          <Column allowSorting={true} dataField='quantity' caption='Quantity' />
-                         <Column allowSorting={true} dataField='priceC'  caption='O Price CNY' />
-                         <Column allowSorting={true} dataField='priceU'  caption='O Price USD' />
-                         <Column allowSorting={true} dataField='priceCI'  caption='Price CNY' />
-                         <Column allowSorting={true} dataField='priceUI'  caption='Price USD' />
-                         <Column allowSorting={true} dataField='quantity' caption='Quantity' />
+                         <Column allowSorting={true} dataField='priceCI'  width={80} caption='Price CNY' />
+                         <Column allowSorting={true} dataField='priceUI'  width={80} caption='Price USD' />
+                         <Column allowSorting={true} dataField='box_brand' caption='Box' />
                          <Column allowSorting={true} dataField='hs' caption='HS code' />
+                         <Column allowSorting={true} dataField='vunit' caption='V unit' />
                          <Column allowSorting={true} dataField='comment' caption='Comment for Order' />
                          <Column allowSorting={true} dataField='comment1' caption='Comment for item' />
                          <Column allowSorting={true} cellRender={updateDataEntry} caption='Save' />
+                         <Export enabled={true} allowExportSelectedData={true} />
 
                        </DataGrid>
                  )}
